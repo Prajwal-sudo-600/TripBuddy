@@ -1,0 +1,3 @@
+"""
+TripBuddy test package.
+"""

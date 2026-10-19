@@ -1,0 +1,3 @@
+"""
+TripBuddy MCP Server package.
+"""
