@@ -1,0 +1,21 @@
+# Environment variables
+.env
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Agent Traces
+traces/
+tripbuddy/traces/
+
+# SQLite databases
+*.db
+*.sqlite3
