@@ -68,10 +68,14 @@ class MCPClient:
 
     def __init__(self, mcp_url: Optional[str] = None):
         cfg = get_config()
-        self.mcp_url = mcp_url or cfg.mcp_url
+        url = mcp_url or cfg.mcp_url
+        if url.startswith("http://localhost:"):
+            url = url.replace("http://localhost:", "http://127.0.0.1:", 1)
+        self.mcp_url = url
         self._cm_transport = None
         self._cm_session = None
         self._session: Optional[ClientSession] = None
+
 
     async def connect(self) -> ClientSession:
         """Connect to the MCP server and initialize the session."""

@@ -81,7 +81,7 @@ def get_config(
     else:
         min_delay = _str_to_float(os.getenv("LLM_MIN_DELAY_SECONDS"), 0.0)
 
-    url = mcp_url if mcp_url is not None else os.getenv("MCP_URL", "http://localhost:8000/mcp")
+    url = mcp_url if mcp_url is not None else get_default_mcp_url()
 
     if max_steps is not None:
         steps = int(max_steps)
@@ -109,6 +109,20 @@ LLM_PROVIDER = os.getenv("LLM_PROVIDER", "gemini")
 LLM_MODEL = os.getenv("LLM_MODEL", "gemini-2.5-flash")
 LLM_API_KEY = os.getenv("LLM_API_KEY", "")
 LLM_MIN_DELAY_SECONDS = _str_to_float(os.getenv("LLM_MIN_DELAY_SECONDS"), 0.0)
-MCP_URL = os.getenv("MCP_URL", "http://localhost:8000/mcp")
+_default_mcp_url = os.getenv("MCP_URL", "http://localhost:8000/mcp")
+MCP_URL = _default_mcp_url
 MAX_STEPS = _str_to_int(os.getenv("MAX_STEPS"), 10)
 HARDENED_PROMPT = _str_to_bool(os.getenv("HARDENED_PROMPT"), False)
+
+
+def get_default_mcp_url() -> str:
+    """Returns the in-memory default MCP URL."""
+    return _default_mcp_url
+
+
+def set_default_mcp_url(url: str) -> None:
+    """Updates the in-memory default MCP URL without modifying .env."""
+    global _default_mcp_url, MCP_URL
+    _default_mcp_url = url
+    MCP_URL = url
+

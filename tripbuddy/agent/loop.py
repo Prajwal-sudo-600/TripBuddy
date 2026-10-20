@@ -24,6 +24,7 @@ class AgentResult:
     steps: List[Dict[str, Any]]
     trace: Dict[str, Any]
     trace_path: str
+    llm_calls: int = 0
 
 
 def build_system_prompt(hardened: bool = False, today: Optional[str] = None) -> str:
@@ -78,6 +79,7 @@ async def _run_task_async(
     steps: List[Dict[str, Any]] = []
     final_answer: Optional[str] = None
     execution_error: Optional[str] = None
+    llm_calls: int = 0
 
     client = MCPClient(mcp_url=target_mcp_url)
 
@@ -94,6 +96,7 @@ async def _run_task_async(
             if not execution_error:
                 for step_num in range(1, cfg.max_steps + 1):
                     step_start = datetime.now(timezone.utc).isoformat()
+                    llm_calls += 1
 
                     try:
                         llm_output = llm_client.chat(messages=messages, tools=tools)
@@ -201,6 +204,7 @@ async def _run_task_async(
         "error": execution_error,
         "steps": steps,
         "messages": messages,
+        "llm_calls": llm_calls,
     }
 
     # Save every trace to traces/<timestamp>.json
@@ -219,7 +223,9 @@ async def _run_task_async(
         steps=steps,
         trace=trace_data,
         trace_path=trace_path_str,
+        llm_calls=llm_calls,
     )
+
 
 
 def run_task(

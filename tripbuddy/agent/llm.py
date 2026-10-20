@@ -313,6 +313,7 @@ class LLMInterface:
             else cfg.llm_min_delay_seconds
         )
         self._last_call_time = 0.0
+        self.call_count = 0
 
     def chat(
         self,
@@ -325,6 +326,7 @@ class LLMInterface:
         - str: final answer text
         - list[dict]: list of requested tool calls [{"name": "...", "args": {...}}]
         """
+        self.call_count += 1
         # Optional delay between calls to avoid hitting tight rate limits
         if self.min_delay_seconds > 0 and self._last_call_time > 0:
             elapsed = time.time() - self._last_call_time
@@ -345,3 +347,4 @@ class LLMInterface:
         )
         self._last_call_time = time.time()
         return result
+
