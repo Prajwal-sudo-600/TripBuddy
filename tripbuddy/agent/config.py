@@ -52,6 +52,7 @@ class AgentConfig:
     mcp_url: str
     max_steps: int
     hardened_prompt: bool
+    llm_base_url: str = "http://localhost:11434"
 
 
 def get_config(
@@ -62,6 +63,7 @@ def get_config(
     mcp_url: Optional[str] = None,
     max_steps: Optional[int] = None,
     hardened_prompt: Optional[bool] = None,
+    llm_base_url: Optional[str] = None,
 ) -> AgentConfig:
     """
     Returns an AgentConfig instance loaded from environment variables and .env,
@@ -75,6 +77,7 @@ def get_config(
     provider = llm_provider if llm_provider is not None else os.getenv("LLM_PROVIDER", "gemini")
     model = llm_model if llm_model is not None else os.getenv("LLM_MODEL", "gemini-2.5-flash")
     api_key = llm_api_key if llm_api_key is not None else os.getenv("LLM_API_KEY", "")
+    base_url = llm_base_url if llm_base_url is not None else os.getenv("LLM_BASE_URL", "http://localhost:11434")
     
     if llm_min_delay_seconds is not None:
         min_delay = float(llm_min_delay_seconds)
@@ -101,6 +104,7 @@ def get_config(
         mcp_url=url,
         max_steps=steps,
         hardened_prompt=hardened,
+        llm_base_url=base_url,
     )
 
 
@@ -108,6 +112,7 @@ def get_config(
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "gemini")
 LLM_MODEL = os.getenv("LLM_MODEL", "gemini-2.5-flash")
 LLM_API_KEY = os.getenv("LLM_API_KEY", "")
+LLM_BASE_URL = os.getenv("LLM_BASE_URL", "http://localhost:11434")
 LLM_MIN_DELAY_SECONDS = _str_to_float(os.getenv("LLM_MIN_DELAY_SECONDS"), 0.0)
 _default_mcp_url = os.getenv("MCP_URL", "http://localhost:8000/mcp")
 MCP_URL = _default_mcp_url

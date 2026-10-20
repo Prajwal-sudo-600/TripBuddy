@@ -5,9 +5,12 @@ can send tasks and observe execution.
 """
 
 import asyncio
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 from fastapi import FastAPI, HTTPException, status
-from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 try:
@@ -34,11 +37,30 @@ app = FastAPI(
     version="1.0.0",
 )
 
+# Enable CORS for browser UI and testing harnesses
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Concurrency lock: allow strictly one task execution at a time
 _task_lock = asyncio.Lock()
 
 # Optional module-level LLM override for tests
 _override_llm: Optional[Any] = None
+
+# Mount React UI dist if built
+_frontend_dist = Path(__file__).resolve().parent.parent.parent / "frontend" / "dist"
+if _frontend_dist.exists() and (_frontend_dist / "assets").exists():
+    app.mount("/assets", StaticFiles(directory=str(_frontend_dist / "assets")), name="assets")
+
+    @app.get("/ui", response_class=FileResponse)
+    @app.get("/", response_class=FileResponse)
+    async def serve_ui():
+        return FileResponse(str(_frontend_dist / "index.html"))
 
 
 def set_test_llm(llm: Optional[Any]) -> None:
@@ -78,6 +100,7 @@ async def get_configuration() -> Dict[str, Any]:
         "hardened_prompt": cfg.hardened_prompt,
         "llm_provider": cfg.llm_provider,
         "llm_model": cfg.llm_model,
+        "llm_base_url": cfg.llm_base_url,
     }
 
 
@@ -95,6 +118,7 @@ async def update_configuration(req: ConfigUpdateRequest) -> Dict[str, Any]:
         "hardened_prompt": cfg.hardened_prompt,
         "llm_provider": cfg.llm_provider,
         "llm_model": cfg.llm_model,
+        "llm_base_url": cfg.llm_base_url,
     }
 
 

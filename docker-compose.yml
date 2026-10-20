@@ -1,0 +1,33 @@
+services:
+  mcp-server:
+    build: .
+    container_name: tripbuddy-mcp-server
+    command: python -m tripbuddy.mcp_server.server
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - tripbuddy-data:/app/data
+    restart: unless-stopped
+
+  agent-service:
+    build: .
+    container_name: tripbuddy-agent-service
+    command: uvicorn tripbuddy.agent.service:app --host 0.0.0.0 --port 8100
+    ports:
+      - "8100:8100"
+    depends_on:
+      - mcp-server
+    env_file:
+      - .env
+    environment:
+      - MCP_URL=http://mcp-server:8000/mcp
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./traces:/app/traces
+      - ./results:/app/results
+    restart: unless-stopped
+
+volumes:
+  tripbuddy-data:

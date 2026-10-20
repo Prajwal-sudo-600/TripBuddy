@@ -10,6 +10,13 @@ from typing import Any, Dict
 from .loop import run_task
 
 
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
+
 def main() -> None:
     if len(sys.argv) < 2:
         print("Usage: python -m agent.cli \"<task description>\"")

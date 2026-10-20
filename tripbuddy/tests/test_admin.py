@@ -196,3 +196,19 @@ async def test_tool_description_update_and_reset(app_and_client):
     tools_restored = await app.list_tools()
     search_tool_restored = next(t for t in tools_restored if t.name == "search_hotels")
     assert search_tool_restored.description == original_desc
+
+
+def test_admin_hotels_endpoint(app_and_client):
+    """Verify GET /admin/hotels returns list of hotels with price and average rating."""
+    client = app_and_client["client"]
+    res = client.get("/admin/hotels")
+    assert res.status_code == 200
+    hotels = res.json()
+    assert isinstance(hotels, list)
+    assert len(hotels) > 0
+    first = hotels[0]
+    assert "id" in first
+    assert "name" in first
+    assert "price_per_night" in first
+    assert "avg_rating" in first
+

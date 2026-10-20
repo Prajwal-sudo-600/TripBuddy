@@ -363,8 +363,17 @@ def create_app(
 # Server runner
 def main() -> None:
     """Run the TripBuddy server on port 8000."""
+    from starlette.middleware.cors import CORSMiddleware
+
     server_app = create_app()
     app = server_app.streamable_http_app()
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
     print("Starting TripBuddy Server on http://127.0.0.1:8000 (MCP endpoint: /mcp)")
     uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info")
 

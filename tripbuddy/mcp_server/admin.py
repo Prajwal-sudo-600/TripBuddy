@@ -148,6 +148,34 @@ def register_admin_routes(
         finally:
             conn.close()
 
+    @mcp_server.custom_route("/admin/hotels", methods=["GET"])
+    async def admin_hotels(request: Request) -> JSONResponse:
+        """Return all hotels with id, name, price_per_night, and avg_rating."""
+        conn = get_db_connection(db_path)
+        try:
+            rows = conn.execute(
+                """
+                SELECT h.id, h.name, h.price_per_night,
+                       ROUND(AVG(r.rating), 2) as avg_rating
+                FROM hotels h
+                LEFT JOIN reviews r ON h.id = r.hotel_id
+                GROUP BY h.id, h.name, h.price_per_night
+                ORDER BY avg_rating DESC, h.id ASC;
+                """
+            ).fetchall()
+            hotel_list = [
+                {
+                    "id": row["id"],
+                    "name": row["name"],
+                    "price_per_night": float(row["price_per_night"]),
+                    "avg_rating": float(row["avg_rating"]) if row["avg_rating"] is not None else 0.0,
+                }
+                for row in rows
+            ]
+            return JSONResponse(hotel_list)
+        finally:
+            conn.close()
+
     @mcp_server.custom_route("/admin/events", methods=["GET"])
     async def admin_events(request: Request) -> JSONResponse:
         """Return the executed tool calls in order."""

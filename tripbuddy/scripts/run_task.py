@@ -19,6 +19,13 @@ def format_tool_call(tool_call: Dict[str, Any]) -> str:
     return f"{name}({args_str})"
 
 
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Send a task to TripBuddy Agent Service.")
     parser.add_argument("task", help="The task description for the agent")
